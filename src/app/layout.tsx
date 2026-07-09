@@ -8,6 +8,7 @@ import { CookieBanner } from '@/components/cookie-banner';
 import { GoogleAnalytics, AdSenseScript } from '@/components/analytics';
 import { JsonLd } from '@/components/json-ld';
 import { organizationJsonLd, websiteJsonLd } from '@/lib/seo';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 // Self-hosted via next/font — no render-blocking font request.
 const inter = Inter({
@@ -81,6 +82,7 @@ export default function RootLayout({
         <CookieBanner />
         <GoogleAnalytics />
         <AdSenseScript />
+        <SpeedInsights />
       </body>
     </html>
   );
