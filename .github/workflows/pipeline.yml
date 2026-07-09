@@ -7,6 +7,8 @@ on:
   schedule:
     # 13:00 & 23:00 UTC ≈ 9am & 7pm US Eastern (adjusts with DST).
     - cron: '0 13,23 * * *'
+    # Weekly Search Console pull — Sundays 14:00 UTC.
+    - cron: '0 14 * * 0'
 
 # Prevent overlapping runs.
 concurrency:
@@ -15,6 +17,7 @@ concurrency:
 
 jobs:
   run-pipeline:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 13,23 * * *'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -36,7 +39,7 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ANTHROPIC_MODEL: ${{ secrets.ANTHROPIC_MODEL }}
           UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TRENDING_GH_TOKEN }}
         run: npm run pipeline:run
 
       - name: Commit newly published posts
@@ -45,7 +48,7 @@ jobs:
           git config user.email "bot@users.noreply.github.com"
           if [ -n "$(git status --porcelain content/)" ]; then
             git add content/
-            git commit -m "chore(content): auto-publish new posts [skip ci]"
+            git commit -m "chore(content): auto-publish new posts"
             git push
           else
             echo "No new content to publish."
@@ -53,7 +56,7 @@ jobs:
 
   monitor:
     # Weekly Search Console pull (Stage 5). Runs Sundays only.
-    if: github.event_name == 'schedule'
+    if: github.event_name == 'schedule' && github.event.schedule == '0 14 * * 0'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -63,7 +66,6 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Run monitoring (Stage 5)
-        if: ${{ format('{0}', github.event.schedule) == '0 13,23 * * *' }}
         env:
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
