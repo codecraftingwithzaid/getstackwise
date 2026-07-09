@@ -1,0 +1,69 @@
+---
+title: "The Best VS Code Extensions for 2026"
+slug: "best-vscode-extensions-2026"
+description: "A curated list of the best VS Code extensions for web developers in 2026, focused on real productivity gains, not clutter."
+publishDate: "2026-01-17T14:00:00.000Z"
+updatedDate: "2026-01-17T14:00:00.000Z"
+tags: ["Dev Tools", "VS Code", "Productivity", "Editor"]
+category: "dev-tools"
+author: "jordan-alvarez"
+ogImage: "https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=1200&h=675&fit=crop"
+heroImageAlt: "A code editor open on a laptop screen"
+featured: false
+---
+
+Extension lists are usually padded with 30 plugins nobody keeps installed. This is the short list I actually run on every machine, plus what each one buys you. The goal is fewer, higher-leverage tools — every extension is startup cost and a potential slowdown.
+
+## The essentials
+
+- **ESLint** — surfaces lint errors inline as you type. Non-negotiable on any JS/TS project.
+- **Prettier** — formats on save so code review never argues about spacing.
+- **GitLens** — inline blame and history; makes "who wrote this and why" a one-second answer.
+- **Error Lens** — pulls diagnostics inline next to the code instead of hiding them in the Problems panel.
+
+## Framework-specific picks
+
+- **Tailwind CSS IntelliSense** — autocomplete and hover previews for utility classes. Essential if you use Tailwind.
+- **Prisma** or your ORM's extension — schema syntax highlighting and formatting.
+
+## What to skip
+
+Theme-of-the-week extensions, anything that duplicates built-in functionality (VS Code has good Git support natively), and heavy plugins that add startup lag for a feature you use monthly.
+
+## Quick comparison
+
+| Extension | What it does | Keep it if |
+| --- | --- | --- |
+| ESLint | Inline lint errors | You write JS/TS (everyone) |
+| Prettier | Auto-formatting | Your team wants consistent style |
+| GitLens | Blame & history | You work in a team repo |
+| Error Lens | Inline diagnostics | You dislike the Problems panel |
+| Tailwind IntelliSense | Class autocomplete | You use Tailwind |
+
+## Performance tips
+
+1. Run "Developer: Show Running Extensions" periodically to find slow startups.
+2. Use workspace-level extension recommendations so teammates get the same setup.
+3. Disable extensions per-workspace when they're irrelevant to that project.
+
+## FAQ
+
+### Do too many extensions really slow down VS Code?
+
+Yes. Each one adds startup time and can hook into events like save and typing. The running-extensions view shows the actual cost.
+
+### Should I use the built-in Git or GitLens?
+
+Built-in Git handles staging and commits fine. GitLens adds blame and history context that's genuinely useful on team projects.
+
+### Are AI extensions worth it?
+
+Copilot-style completion is worth it for most developers. Beyond that, add AI tools deliberately rather than stacking several that overlap.
+
+### How do I share my setup with a team?
+
+Add a `.vscode/extensions.json` with recommendations to your repo so new contributors get prompted to install the same set.
+
+## The verdict
+
+Keep your extension list short and deliberate. ESLint, Prettier, GitLens, and Error Lens cover the fundamentals for almost everyone, with Tailwind IntelliSense if your stack calls for it. Audit your running extensions once a quarter and drop anything you haven't used — a fast editor beats a feature-packed slow one.

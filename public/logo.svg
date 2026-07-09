@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none" role="img" aria-label="StackWise logo">
+  <!-- Stacked tiers -->
+  <rect x="34" y="30" width="52" height="18" rx="6" fill="#12996b"/>
+  <rect x="24" y="54" width="72" height="18" rx="6" fill="#0d6b4a"/>
+  <rect x="14" y="78" width="92" height="18" rx="6" fill="#0a3d2c"/>
+  <!-- Baseline -->
+  <rect x="18" y="102" width="84" height="5" rx="2.5" fill="#12b981"/>
+  <!-- Check badge -->
+  <circle cx="90" cy="30" r="12" fill="#f5a623"/>
+  <path d="M84.5 30.5 L88.5 34.5 L96 26.5" stroke="#1a1a1a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>

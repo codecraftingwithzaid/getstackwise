@@ -1,0 +1,9 @@
+{
+  "regions": ["iad1"],
+  "crons": [
+    {
+      "path": "/api/pipeline",
+      "schedule": "0 13,23 * * *"
+    }
+  ]
+}

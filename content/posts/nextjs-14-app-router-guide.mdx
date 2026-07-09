@@ -1,0 +1,91 @@
+---
+title: "Next.js 14 App Router: A Practical Guide"
+slug: "nextjs-14-app-router-guide"
+description: "A hands-on guide to the Next.js 14 App Router: server components, data fetching, caching, and when to reach for a client component."
+publishDate: "2026-01-05T14:00:00.000Z"
+updatedDate: "2026-01-05T14:00:00.000Z"
+tags: ["Next.js", "React", "App Router", "Server Components"]
+category: "web-dev"
+author: "jordan-alvarez"
+ogImage: "https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=1200&h=675&fit=crop"
+heroImageAlt: "A developer working on a Next.js project in a code editor"
+featured: true
+---
+
+The App Router is no longer the new kid. As of Next.js 14 it's the default, it's stable, and it's how most US teams start new projects. But the mental model is genuinely different from the Pages Router, and that's where people trip up. Here's what actually matters day to day.
+
+## Server components are the default
+
+Every component under `app/` is a React Server Component unless you say otherwise. That means it runs on the server, never ships to the browser, and can talk directly to your database or filesystem.
+
+```tsx
+// app/posts/page.tsx — runs on the server
+import { db } from '@/lib/db';
+
+export default async function PostsPage() {
+  const posts = await db.post.findMany();
+  return <PostList posts={posts} />;
+}
+```
+
+No `useEffect`, no loading spinner boilerplate, no API route in the middle. You `await` your data right in the component.
+
+## When you actually need a client component
+
+Reach for `'use client'` only when you need interactivity or browser APIs:
+
+- State and effects (`useState`, `useEffect`)
+- Event handlers (`onClick`, `onChange`)
+- Browser-only APIs (`localStorage`, `window`)
+- Third-party libraries that use any of the above
+
+The trick most people miss: keep client components small and push them to the leaves of your tree. A single interactive button doesn't require the whole page to be a client component.
+
+## Server Components vs Client Components
+
+| Concern | Server Component | Client Component |
+| --- | --- | --- |
+| Runs where | Server only | Server (initial) + browser |
+| Ships JS to browser | No | Yes |
+| Data fetching | Direct `await` | `fetch` in effect or a lib |
+| State / interactivity | No | Yes |
+| Access to DB / secrets | Yes | No |
+| Marked with | (default) | `'use client'` |
+
+## Data fetching and caching
+
+In the App Router, `fetch` is extended with caching controls. This is the part that changed most in the Next.js 14 era, so read the labels carefully:
+
+- `fetch(url)` — cached by default (static)
+- `fetch(url, { cache: 'no-store' })` — always fresh (dynamic)
+- `fetch(url, { next: { revalidate: 3600 } })` — ISR: revalidate every hour
+
+For content sites, `revalidate` is your friend. You get static-fast pages that still pick up new content without a full redeploy.
+
+## A few rules that save you pain
+
+1. Don't import server-only code into client components. Use the `server-only` package to enforce it.
+2. Colocate `loading.tsx` and `error.tsx` with your routes for automatic Suspense and error boundaries.
+3. Use `generateStaticParams` for dynamic routes you want pre-rendered at build time.
+
+## FAQ
+
+### Do I have to migrate my Pages Router app?
+
+No. The two routers work side by side in the same project. Migrate route by route when it makes sense, not all at once.
+
+### Are Server Components slower because they run on the server?
+
+Usually the opposite. They ship less JavaScript, so the browser has less to parse and execute. The server work is fast and cacheable.
+
+### Can I use my favorite data-fetching library like React Query?
+
+Yes, inside client components. But for most server-rendered data you won't need it — a direct `await` is simpler.
+
+### How do I share state across server and client components?
+
+You don't share React state across that boundary. Pass data down as props from server to client, and lift interactive state into the client subtree.
+
+## The verdict
+
+If you're starting a new project in 2026, use the App Router. The server-first model removes a whole category of boilerplate, and the caching controls give you fine-grained performance without ejecting to custom infrastructure. Keep client components small, lean on `revalidate` for content, and you'll ship faster with less JavaScript.

@@ -1,0 +1,101 @@
+---
+title: "Supabase Auth with Next.js: A Setup Tutorial"
+slug: "supabase-auth-nextjs-tutorial"
+description: "Step-by-step tutorial for adding Supabase authentication to a Next.js App Router app, including sessions, protected routes, and RLS."
+publishDate: "2026-01-14T15:00:00.000Z"
+updatedDate: "2026-01-14T15:00:00.000Z"
+tags: ["Supabase", "Next.js", "Authentication", "Tutorial"]
+category: "web-dev"
+author: "jordan-alvarez"
+ogImage: "https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=1200&h=675&fit=crop"
+heroImageAlt: "Authentication and security lock concept on a screen"
+featured: false
+---
+
+Supabase gives you a hosted Postgres database with authentication baked in, which makes it a fast way to add login to a Next.js app without standing up your own auth server. This tutorial walks through a clean setup with the App Router.
+
+## What you'll build
+
+Email/password auth with server-side sessions, a protected dashboard route, and Row Level Security so users only see their own data.
+
+## Step 1: Install and configure
+
+```bash
+npm install @supabase/supabase-js @supabase/ssr
+```
+
+Add your project URL and anon key to `.env.local`:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+```
+
+## Step 2: Create server and client helpers
+
+The `@supabase/ssr` package handles cookie-based sessions that work across server and client components. Create a browser client for client components and a server client that reads cookies in server components and route handlers.
+
+## Step 3: Protect a route
+
+In a server component, check the session and redirect if there's no user:
+
+```tsx
+import { redirect } from 'next/navigation';
+import { createServerClient } from '@/lib/supabase-server';
+
+export default async function Dashboard() {
+  const supabase = createServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+  return <div>Welcome, {user.email}</div>;
+}
+```
+
+## Step 4: Lock the data down with RLS
+
+Auth in the app is only half the job. Enable Row Level Security on every table and write policies so the database itself enforces access.
+
+```sql
+alter table profiles enable row level security;
+
+create policy "Users read own profile"
+  on profiles for select
+  using (auth.uid() = id);
+```
+
+## Common auth patterns compared
+
+| Approach | Where session lives | Best for |
+| --- | --- | --- |
+| Cookie sessions (`@supabase/ssr`) | HTTP-only cookie | App Router, SSR |
+| Client-only session | Browser storage | SPAs, static hosts |
+| Service role (server only) | Never exposed | Admin/back-office tasks |
+
+## Security checklist
+
+- Never ship the service role key to the browser.
+- Enable RLS on every table — an unprotected table is public.
+- Use HTTP-only cookies for sessions, not localStorage.
+- Validate redirects to avoid open-redirect bugs after login.
+
+## FAQ
+
+### Do I still need RLS if I check auth in my app code?
+
+Yes. App checks can be bypassed if an endpoint is missed. RLS enforces access at the database, which is your real security boundary.
+
+### Can I use social logins too?
+
+Yes. Supabase supports OAuth providers like Google and GitHub — the session handling is the same once configured.
+
+### Where should the session live in the App Router?
+
+In an HTTP-only cookie via `@supabase/ssr`, so both server and client components can read it securely.
+
+### Is Supabase auth free?
+
+There's a generous free tier suitable for side projects and early startups; you pay as your monthly active users grow.
+
+## The verdict
+
+For a Next.js App Router app, Supabase auth with `@supabase/ssr` and RLS is a fast, secure foundation. The one thing you cannot skip is Row Level Security — treat every table as public until a policy says otherwise, and you'll avoid the most common Supabase security mistake.

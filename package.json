@@ -1,0 +1,50 @@
+{
+  "name": "us-tech-blog",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Automated US-targeted tech blog with SEO + AdSense optimization",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "pipeline:run": "tsx scripts/pipeline/run.ts",
+    "pipeline:trends": "tsx scripts/pipeline/stage1-trends.ts",
+    "pipeline:draft": "tsx scripts/pipeline/stage2-draft.ts",
+    "pipeline:gate": "tsx scripts/pipeline/stage3-quality-gate.ts",
+    "pipeline:publish": "tsx scripts/pipeline/stage4-publish.ts",
+    "pipeline:monitor": "tsx scripts/pipeline/stage5-monitor.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.27.3",
+    "@supabase/supabase-js": "^2.45.4",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "gray-matter": "^4.0.3",
+    "lucide-react": "^0.451.0",
+    "next": "^14.2.35",
+    "next-mdx-remote": "^5.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "reading-time": "^1.5.0",
+    "rehype-autolink-headings": "^7.1.0",
+    "rehype-slug": "^6.0.0",
+    "remark-gfm": "^4.0.0",
+    "tailwind-merge": "^2.5.4",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/typography": "^0.5.15",
+    "@types/node": "^20.16.11",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^14.2.35",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.3"
+  }
+}
