@@ -1,75 +1,133 @@
 name: Content Pipeline
 
-# Runs the semi-automated content pipeline (Stages 1-4), commits any new MDX
-# posts, and lets Vercel redeploy. Timed to US tech-audience active hours.
+
 on:
   workflow_dispatch: {}
-  schedule:
-    # 13:00 & 23:00 UTC ≈ 9am & 7pm US Eastern (adjusts with DST).
-    - cron: '0 13,23 * * *'
-    # Weekly Search Console pull — Sundays 14:00 UTC.
-    - cron: '0 14 * * 0'
 
-# Prevent overlapping runs.
+  schedule:
+    # Content generation - twice daily
+    # 13:00 UTC and 23:00 UTC
+    - cron: "0 13,23 * * *"
+
+    # Search Console monitoring
+    # Sunday 14:00 UTC
+    - cron: "0 14 * * 0"
+
+
 concurrency:
   group: content-pipeline
   cancel-in-progress: false
 
+
 jobs:
+
   run-pipeline:
+
     if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 13,23 * * *'
+
     runs-on: ubuntu-latest
+
+
     permissions:
       contents: write
-    steps:
-      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
-      - run: npm ci
 
-      - name: Run pipeline (Stages 1-4)
+      - name: Install Dependencies
+        run: npm ci
+
+
+      - name: Run Content Pipeline
         env:
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ANTHROPIC_MODEL: ${{ secrets.ANTHROPIC_MODEL }}
+
           UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
+
           GITHUB_TOKEN: ${{ secrets.TRENDING_GH_TOKEN }}
+
         run: npm run pipeline:run
 
-      - name: Commit newly published posts
+
+      - name: Commit Generated Posts
+
         run: |
+
           git config user.name "content-bot"
           git config user.email "bot@users.noreply.github.com"
+
+
           if [ -n "$(git status --porcelain content/)" ]; then
+
             git add content/
-            git commit -m "chore(content): auto-publish new posts"
+
+            git commit -m "chore(content): auto publish posts"
+
             git push
+
           else
-            echo "No new content to publish."
+
+            echo "No content changes"
+
           fi
 
+
+
   monitor:
-    # Weekly Search Console pull (Stage 5). Runs Sundays only.
+
     if: github.event_name == 'schedule' && github.event.schedule == '0 14 * * 0'
+
+
     runs-on: ubuntu-latest
+
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+
+      - name: Setup Node
+
+        uses: actions/setup-node@v4
+
         with:
           node-version: 20
           cache: npm
+
+
       - run: npm ci
-      - name: Run monitoring (Stage 5)
+
+
+
+      - name: Run Monitoring
+
         env:
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
           GSC_SERVICE_ACCOUNT_B64: ${{ secrets.GSC_SERVICE_ACCOUNT_B64 }}
+
           GSC_SITE_URL: ${{ secrets.GSC_SITE_URL }}
+
+
         run: npm run pipeline:monitor
